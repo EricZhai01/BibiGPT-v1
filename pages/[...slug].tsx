@@ -82,7 +82,8 @@ export const Home: NextPage<{
   const [userKey, setUserKey] = useLocalStorage<string>('user-openai-apikey')
   const [userBaseUrl, setUserBaseUrl] = useLocalStorage<string>('user-openai-base-url')
   const [oauthLoading, setOauthLoading] = useState(false)
-  const { models: openRouterModels, latestModel, loading: modelLoading } = useOpenRouterModels()
+  const isOpenRouter = (userBaseUrl || '').includes('openrouter.ai')
+  const { models: openRouterModels, latestModel, loading: modelLoading } = useOpenRouterModels(isOpenRouter)
   const { loading, summary, resetSummary, summarize } = useSummarize(showSingIn)
   const { toast } = useToast()
   const { analytics } = useAnalytics()
@@ -100,14 +101,21 @@ export const Home: NextPage<{
   }, [licenseKey])
 
   useEffect(() => {
+    const currentModel = getValues('model')
+    if (!isOpenRouter) {
+      // Clear stale OpenRouter-style slug (e.g. "minimax/minimax-m2.7") persisted from a prior session.
+      if (currentModel && currentModel.includes('/')) {
+        setValue('model', '')
+      }
+      return
+    }
     if (!openRouterModels.length) {
       return
     }
-    const currentModel = getValues('model')
     if (!currentModel) {
       setValue('model', openRouterModels[0].id)
     }
-  }, [openRouterModels, getValues, setValue])
+  }, [isOpenRouter, openRouterModels, getValues, setValue])
 
   useEffect(() => {
     // https://www.youtube.com/watch?v=DHhOgWPKIKU
@@ -249,7 +257,7 @@ export const Home: NextPage<{
   return (
     <div className="mt-10 w-full px-4 sm:mt-40 lg:px-0">
       <UsageDescription />
-      <TypingSlogan latestModelName={latestModel?.name} />
+      <TypingSlogan latestModelName={latestModel?.name} isOpenRouter={isOpenRouter} />
       <UsageAction />
       <UserKeyInput
         value={userKey}
@@ -273,6 +281,7 @@ export const Home: NextPage<{
           register={register}
           modelOptions={openRouterModels}
           modelLoading={modelLoading}
+          isOpenRouter={isOpenRouter}
         />
       </form>
       {summary && (

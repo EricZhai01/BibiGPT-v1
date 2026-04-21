@@ -14,13 +14,21 @@ type OpenRouterModelsPayload = {
   models: OpenRouterModelOption[]
 }
 
-export function useOpenRouterModels() {
+export function useOpenRouterModels(enabled: boolean = true) {
   const [models, setModels] = useState<OpenRouterModelOption[]>([])
   const [latestModel, setLatestModel] = useState<OpenRouterModelOption | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(enabled)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!enabled) {
+      setModels([])
+      setLatestModel(null)
+      setLoading(false)
+      setError(null)
+      return
+    }
+
     const controller = new AbortController()
 
     async function fetchModels() {
@@ -54,7 +62,7 @@ export function useOpenRouterModels() {
     return () => {
       controller.abort()
     }
-  }, [])
+  }, [enabled])
 
   return {
     models,
