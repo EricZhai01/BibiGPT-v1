@@ -1,4 +1,4 @@
-> This repo is only for v1 and supports Bilibil and YouTube!
+> This repo is only for v1 and supports Bilibil and YouTube!!
 
 # 🤖 BibiGPT: one-Click AI Summary for Audio/Video & Chat with Learning Content [https://bibigpt.co](https://bibigpt.co)
 
